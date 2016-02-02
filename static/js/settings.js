@@ -11,8 +11,8 @@
  * @license    http://www.coreshop.org/license     GNU General Public License version 3 (GPLv3)
  */
 
-pimcore.registerNS("pimcore.plugin.coreshop.paypal.settings");
-pimcore.plugin.coreshop.paypal.settings = Class.create({
+pimcore.registerNS("pimcore.plugin.paypal.settings");
+pimcore.plugin.paypal.settings = Class.create({
 
     initialize: function () {
         this.getData();

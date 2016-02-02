@@ -11,40 +11,40 @@
  * @license    http://www.coreshop.org/license     GNU General Public License version 3 (GPLv3)
  */
 
-pimcore.registerNS("pimcore.plugin.coreshop.paypal");
+$(document).on("coreShopReady", function() {
+    pimcore.registerNS("pimcore.plugin.paypal.plugin");
+    pimcore.plugin.paypal.plugin = Class.create(coreshop.plugin.admin, {
 
-pimcore.plugin.coreshop.paypal = Class.create(coreshop.plugin.admin, {
+        getClassName: function () {
+            return "pimcore.plugin.paypal.plugin";
+        },
 
-    getClassName: function() {
-        return "pimcore.plugin.coreshop.paypal";
-    },
+        initialize: function () {
+            coreshop.plugin.broker.registerPlugin(this);
+        },
 
-    initialize: function() {
-        coreshop.plugin.broker.registerPlugin(this);
-    },
+        uninstall: function () {
+            //TODO remove from menu
+        },
 
-    uninstall: function() {
-        //TODO remove from menu
-    },
+        coreshopReady: function (coreshop, broker) {
+            coreshop.addPluginMenu({
+                text: t("coreshop_paypal"),
+                iconCls: "coreshop_icon_paypal",
+                handler: this.openPaypal
+            });
+        },
 
-    coreshopReady: function (coreshop, broker) {
-        coreshop.addPluginMenu({
-            text: t("coreshop_paypal"),
-            iconCls: "coreshop_icon_paypal",
-            handler: this.openPaypal
-        });
-    },
-
-    openPaypal: function()
-    {
-        try {
-            pimcore.globalmanager.get("coreshop_paypal").activate();
+        openPaypal: function () {
+            try {
+                pimcore.globalmanager.get("coreshop_paypal").activate();
+            }
+            catch (e) {
+                //console.log(e);
+                pimcore.globalmanager.add("coreshop_paypal", new pimcore.plugin.paypal.settings());
+            }
         }
-        catch (e) {
-            //console.log(e);
-            pimcore.globalmanager.add("coreshop_paypal", new pimcore.plugin.coreshop.paypal.settings());
-        }
-    }
+    });
+
+    new pimcore.plugin.paypal.plugin();
 });
-
-new pimcore.plugin.coreshop.paypal();
