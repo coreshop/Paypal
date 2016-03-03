@@ -58,7 +58,7 @@ class Shop extends CorePayment
      */
     public function getImage()
     {
-        return "/plugins/Paypal/static/img/paypal.gif";
+        return "/plugins/Paypal/static/img/paypal.jpg";
     }
 
     /**
