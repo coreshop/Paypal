@@ -32,7 +32,7 @@ class Shop extends CorePayment
     {
         self::getInstall()->attachEvents();
 
-        CorePlugin::getEventManager()->attach("payment.getProvider", function ($e) {
+        \Pimcore::getEventManager()->attach("çoreshop.payment.getProvider", function ($e) {
             return $this;
         });
     }
