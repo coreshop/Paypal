@@ -113,7 +113,7 @@ class Paypal_PaymentController extends Payment
             try {
                 $payment = \PayPal\Api\Payment::get($paymentId, $this->apiContext);
 
-                $order = $this->getModule()->createOrder($this->cart, \CoreShop\Model\OrderState::getById(\CoreShop\Model\Configuration::get("SYSTEM.ORDERSTATE.PAYMENT")), $this->cart->getTotal(), $this->view->language);
+                $order = $this->getModule()->createOrder($this->cart, \CoreShop\Model\Order\State::getById(\CoreShop\Model\Configuration::get("SYSTEM.ORDERSTATE.PAYMENT")), $this->cart->getTotal(), $this->view->language);
 
                 $payments = $order->getPayments();
 
