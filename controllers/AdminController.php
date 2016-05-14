@@ -13,7 +13,6 @@
  */
 
 use CoreShop\Model;
-use Pimcore\Model\Object\CoreShopPayment;
 
 class Paypal_AdminController extends \CoreShop\Plugin\Controller\Admin
 {

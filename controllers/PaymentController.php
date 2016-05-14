@@ -13,7 +13,6 @@
  */
 
 use CoreShop\Controller\Action\Payment;
-use Pimcore\Model\Object\CoreShopPayment;
 use CoreShop\Tool;
 
 class Paypal_PaymentController extends Payment
@@ -147,7 +146,7 @@ class Paypal_PaymentController extends Payment
         $orderId = $this->getParam("order");
 
         if ($orderId) {
-            $order = \Pimcore\Model\Object\CoreShopOrder::getById($orderId);
+            $order = \CoreShop\Model\Order::getById($orderId);
 
             if ($order instanceof \CoreShop\Model\Order) {
                 $this->session->order = $order;
