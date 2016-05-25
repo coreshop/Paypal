@@ -55,16 +55,19 @@ class Paypal_PaymentController extends Payment
             $pItem = new \PayPal\Api\Item();
             $pItem->setName($item->getProduct()->getName());
             $pItem->setCurrency(Tool::getCurrency()->getIsoCode());
-            $pItem->setQuantity($item->getAmount());
             $pItem->setSku($item->getProduct()->getArticleNumber());
-            $pItem->setPrice($item->getProduct()->getPrice());
+
+            $pItem->setPrice($item->getProduct()->getPriceWithoutTax());
+            $pItem->setTax($item->getProduct()->getTaxAmount());
+            $pItem->setQuantity($item->getAmount());
 
             $itemList->addItem($pItem);
         }
 
         $details = new \PayPal\Api\Details();
-        $details->setShipping($this->cart->getShipping());
-        $details->setSubtotal($this->cart->getSubtotal());
+        $details->setShipping($this->cart->getShipping(false));
+        $details->setSubtotal($this->cart->getSubtotal(false));
+        $details->setTax($this->cart->getTotalTax());
 
         $amount = new \PayPal\Api\Amount();
         $amount->setCurrency(Tool::getCurrency()->getIsoCode());
@@ -91,7 +94,9 @@ class Paypal_PaymentController extends Payment
 
         try {
             $payment->create($this->apiContext);
-        } catch (\Exception $ex) {
+        } catch (\PayPal\Exception\PayPalConnectionException $ex) {
+            echo '<pre>';print_r(json_decode($ex->getData()));exit;
+        } catch(\Exception $ex) {
             die($ex);
         }
 
