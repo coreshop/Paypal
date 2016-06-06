@@ -12,5 +12,5 @@ Paypal Payment Plugin for Pimcore
 Install with composer
 
 ```
-composer require coreshop/paypal dev-master
+composer require coreshop/paypal 1.0
 ```
