@@ -57,7 +57,7 @@ class Paypal_PaymentController extends Payment
             $pItem->setCurrency(Tool::getCurrency()->getIsoCode());
             $pItem->setSku($item->getProduct()->getArticleNumber());
 
-            $pItem->setPrice($item->getProduct()->getPriceWithoutTax());
+            $pItem->setPrice($item->getProduct()->getPrice(false));
             $pItem->setTax($item->getProduct()->getTaxAmount());
             $pItem->setQuantity($item->getAmount());
 
