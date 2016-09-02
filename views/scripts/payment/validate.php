@@ -4,7 +4,7 @@
             <h3 class="panel-title"><?=$this->translate("Paypal")?></h3>
         </div>
         <div class="panel-body delivery-options">
-            <p><?=sprintf($this->translate("Do you want to pay the amount %s with Paypal?", \CoreShop\Tool::formatPrice($this->cart->getTotal())))?></p>
+            <p><?=sprintf($this->translate("Do you want to pay the amount %s with Paypal?", \CoreShop::getTools()->formatPrice($this->cart->getTotal())))?></p>
 
             <div class="row">
                 <div class="col-xs-12">
