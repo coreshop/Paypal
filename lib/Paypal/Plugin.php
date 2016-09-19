@@ -24,6 +24,11 @@ use Pimcore\API\Plugin\PluginInterface;
 class Plugin extends AbstractPlugin implements PluginInterface
 {
     /**
+     * @var int
+     */
+    private static $requiredCoreShopBuild = 72;
+
+    /**
      * @var Shop
      */
     private static $shop;
@@ -56,6 +61,10 @@ class Plugin extends AbstractPlugin implements PluginInterface
      */
     public static function isInstalled()
     {
+        if( !class_exists("CoreShop\\Version") || (int) \CoreShop\Version::getBuildNumber() < self::$requiredCoreShopBuild ) {
+            return false;
+        }
+
         try {
             \Pimcore\Model\Object\Objectbrick\Definition::getByKey("CoreShopPaymentPaypal");
 
@@ -71,6 +80,10 @@ class Plugin extends AbstractPlugin implements PluginInterface
      */
     public static function install()
     {
+        if( !class_exists("CoreShop\\Version") || (int) \CoreShop\Version::getBuildNumber() < self::$requiredCoreShopBuild ) {
+            return 'You need CoreShop (at least build' . self::$requiredCoreShopBuild .') to run this plugin.';
+        }
+
         if (class_exists("\\CoreShop\\Plugin")) {
             \CoreShop\Plugin::installPlugin(self::getShop()->getInstall());
         }
