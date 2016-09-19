@@ -64,7 +64,7 @@ class Plugin extends AbstractPlugin implements PluginInterface
         $p = PIMCORE_PLUGINS_PATH . '/CoreShop/Plugin.xml';
 
         if( !file_exists($p)) {
-            return FALSE;
+            return false;
         }
 
         $config = new \Zend_Config_Xml($p);
