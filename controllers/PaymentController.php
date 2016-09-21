@@ -140,12 +140,12 @@ class Paypal_PaymentController extends Payment
             die($ex);
         }
 
-        $this->redirect( \CoreShop::getTools()->url(array('lang' => $this->view->language), "coreshop_index") );
+        $this->redirect( \CoreShop::getTools()->url(array("lang" => $this->view->language), "coreshop_index") );
     }
 
     public function paymentReturnAbortAction()
     {
-        $this->redirect( \CoreShop::getTools()->url(array('lang' => $this->view->language), "coreshop_index") );
+        $this->redirect( \CoreShop::getTools()->url(array("lang" => $this->view->language), "coreshop_index") );
     }
 
     public function confirmationAction()
