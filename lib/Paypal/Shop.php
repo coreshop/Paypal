@@ -104,7 +104,7 @@ class Shop extends CorePayment
      */
     public function getConfirmationUrl($order)
     {
-        return $this->url($this->getIdentifier(), 'confirmation') . "?order=" . $order->getId();
+        return $this->url($this->getIdentifier(), 'confirmation', array("order" => $order->getId()));
     }
 
     /**

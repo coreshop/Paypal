@@ -13,7 +13,6 @@
  */
 
 use CoreShop\Controller\Action\Payment;
-use CoreShop\Tool;
 
 /**
  * Class Paypal_PaymentController
@@ -57,11 +56,11 @@ class Paypal_PaymentController extends Payment
         foreach ($this->cart->getItems() as $item) {
             $pItem = new \PayPal\Api\Item();
             $pItem->setName($item->getProduct()->getName());
-            $pItem->setCurrency(Tool::getCurrency()->getIsoCode());
+            $pItem->setCurrency(\CoreShop::getTools()->getCurrency()->getIsoCode());
             $pItem->setSku($item->getProduct()->getArticleNumber());
 
-            $pItem->setPrice($item->getProduct()->getPrice(false));
-            $pItem->setTax($item->getProduct()->getTaxAmount());
+            $pItem->setPrice($item->getProductPrice(false));
+            $pItem->setTax($item->getProductTaxAmount());
             $pItem->setQuantity($item->getAmount());
 
             $itemList->addItem($pItem);
@@ -73,7 +72,7 @@ class Paypal_PaymentController extends Payment
         $details->setTax($this->cart->getTotalTax());
 
         $amount = new \PayPal\Api\Amount();
-        $amount->setCurrency(Tool::getCurrency()->getIsoCode());
+        $amount->setCurrency(\CoreShop::getTools()->getCurrency()->getIsoCode());
         $amount->setTotal($this->cart->getTotal());
         $amount->setDetails($details);
 
@@ -141,12 +140,12 @@ class Paypal_PaymentController extends Payment
             die($ex);
         }
 
-        $this->redirect($this->view->url(array(), "coreshop_index"));
+        $this->redirect( \CoreShop::getTools()->url(array('lang' => $this->view->language), "coreshop_index") );
     }
 
     public function paymentReturnAbortAction()
     {
-        $this->redirect($this->view->url(array(), "coreshop_index"));
+        $this->redirect( \CoreShop::getTools()->url(array('lang' => $this->view->language), "coreshop_index") );
     }
 
     public function confirmationAction()
