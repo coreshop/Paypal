@@ -14,6 +14,6 @@
   "require": {
     "pimcore/installer-plugin": ">=1",
     "coreshop/core-shop" : "*",
-    "paypal/rest-api-sdk-php": "*"
+    "paypal/rest-api-sdk-php": "~1.8.0"
   }
 }
