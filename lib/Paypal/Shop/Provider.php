@@ -18,8 +18,6 @@ use CoreShop\Model\Cart;
 use CoreShop\Model\Order;
 use CoreShop\Model\Plugin\Payment as CorePayment;
 use CoreShop\Plugin as CorePlugin;
-use CoreShop\Tool;
-use Pimcore\Model\Staticroute;
 
 /**
  * Class Shop
