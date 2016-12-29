@@ -170,7 +170,10 @@ class Paypal_PaymentController extends Payment
                     $this->getOrderPayment(
                         $order,
                         $paymentId
-                    )->addTransactionNote($paymentId, 'State: ' . $payment->getState() . '. Message: ' . $message);
+                    )->addTransactionNote(
+                        $paymentId,
+                        $payment->getState(),
+                        'State: ' . $payment->getState() . '. Message: ' . $message);
 
                     $params = [
                         'newState'      => $state,
@@ -179,9 +182,8 @@ class Paypal_PaymentController extends Payment
 
                     try {
                         \CoreShop\Model\Order\State::changeOrderState($order, $params);
-                        $this->redirect($this->getModule()->getConfirmationUrl($order));
                     } catch(\Exception $e) {
-                        $this->redirect($this->getModule()->getErrorUrl($e->getMessage()));
+                        // fail silently.
                     }
 
                     if ($createInvoice) {
@@ -210,7 +212,7 @@ class Paypal_PaymentController extends Payment
                 }
 
             } else {
-                throw new \Exception('PayPal Gateway Error: Order with id "' . $orderId . '"" not found.');
+                $this->redirect($this->getModule()->getErrorUrl('PayPal Gateway Error: Order with id "' . $orderId . '"" not found.'));
             }
 
         } catch (\Exception $ex) {
