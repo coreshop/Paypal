@@ -147,6 +147,7 @@ class Paypal_PaymentController extends Payment
                     $state = \CoreShop\Model\Order\State::STATE_CANCELED;
                     $status = \CoreShop\Model\Order\State::STATUS_CANCELED;
                     $message = '-';
+                    $createInvoice = false;
 
                     switch($payment->getState()) {
                         case 'created':
@@ -156,6 +157,7 @@ class Paypal_PaymentController extends Payment
                         case 'approved':
                             $state = \CoreShop\Model\Order\State::STATE_PROCESSING;
                             $status = \CoreShop\Model\Order\State::STATUS_PROCESSING;
+                            $createInvoice = true;
                             break;
                         case 'failed':
                             $state = \CoreShop\Model\Order\State::STATE_CANCELED;
@@ -182,16 +184,25 @@ class Paypal_PaymentController extends Payment
                         $this->redirect($this->getModule()->getErrorUrl($e->getMessage()));
                     }
 
-                    $payments = $order->getPayments();
-
-                    foreach ($payments as $p) {
-                        $dataBrick = new \Pimcore\Model\Object\Objectbrick\Data\CoreShopPaymentPaypal($p);
-
-                        $dataBrick->setTransactionId($payment->getId());
-                        $dataBrick->setStatus($payment->getState());
-
-                        $p->save();
+                    if ($createInvoice) {
+                        try {
+                            $order->createInvoiceForAllItems();
+                        } catch(\Exception $e) {
+                            // fail silently.
+                        }
                     }
+
+                    /* @fixme!
+                    $payments = $order->getPayments();
+                    foreach ($payments as $p) {
+                    $dataBrick = new \Pimcore\Model\Object\Objectbrick\Data\CoreShopPaymentPaypal($p);
+
+                    $dataBrick->setTransactionId($payment->getId());
+                    $dataBrick->setStatus($payment->getState());
+
+                    $p->save();
+                    }
+                    */
 
                     $this->redirect($this->getModule()->getConfirmationUrl($order));
                 } catch (Exception $ex) {
