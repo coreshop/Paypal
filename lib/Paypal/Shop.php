@@ -14,15 +14,18 @@
 
 namespace Paypal;
 
+use CoreShop\Model\Cart;
+use CoreShop\Model\Order;
+use CoreShop\Model\Plugin\Payment as CorePayment;
 use CoreShop\Plugin as CorePlugin;
+use CoreShop\Tool;
 use Paypal\Shop\Install;
-use Paypal\Shop\Provider;
 
 /**
  * Class Shop
  * @package Paypal
  */
-class Shop
+class Shop extends CorePayment
 {
     public static $install;
 
@@ -33,11 +36,106 @@ class Shop
     {
         self::getInstall()->attachEvents();
 
-        $shopProvider = new Provider();
-
-        \Pimcore::getEventManager()->attach("coreshop.payment.getProvider", function ($e) use ($shopProvider) {
-            return $shopProvider;
+        \Pimcore::getEventManager()->attach("coreshop.payment.getProvider", function ($e) {
+            return $this;
         });
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return "Paypal";
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return "";
+    }
+
+    /**
+     * @return string
+     */
+    public function getImage()
+    {
+        return "/plugins/Paypal/static/img/paypal.jpg";
+    }
+
+    /**
+     * @return string
+     */
+    public function getIdentifier()
+    {
+        return "Paypal";
+    }
+
+    /**
+     * Get Payment Fee
+     *
+     * @param Cart $cart
+     * @param boolean $useTaxes Use Taxes?
+     * @return float
+     */
+    public function getPaymentFee(Cart $cart, $useTaxes = true)
+    {
+        return 0;
+    }
+
+    /**
+     * Process Validation for Payment
+     *
+     * @param Cart $cart
+     * @return mixed
+     */
+    public function process(Cart $cart)
+    {
+        return $this->getProcessValidationUrl();
+    }
+
+    /**
+     * Get url for confirmation link
+     *
+     * @param Order $order
+     * @return string
+     */
+    public function getConfirmationUrl($order)
+    {
+        return $this->url($this->getIdentifier(), 'confirmation', array('order' => $order->getId()));
+    }
+
+    /**
+     * get url for validation link
+     *
+     * @return string
+     */
+    public function getProcessValidationUrl()
+    {
+        return $this->url($this->getIdentifier(), 'validate');
+    }
+
+    /**
+     * get url payment link
+     *
+     * @return string
+     */
+    public function getPaymentUrl()
+    {
+        return $this->url($this->getIdentifier(), 'payment');
+    }
+
+    /**
+     * get error url
+     * @param $errorMessage
+     *
+     * @return string
+     */
+    public function getErrorUrl($errorMessage = '')
+    {
+        return $this->url($this->getIdentifier(), 'error', ['error' => $errorMessage]);
     }
 
     /**

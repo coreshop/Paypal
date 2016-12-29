@@ -49,22 +49,13 @@ class Paypal_PaymentController extends Payment
         $order = NULL;
 
         try {
-
-            $order = $this->createOrder($this->view->language, $this->cart->getTotal());
+            $order = $this->createOrder($this->view->language);
 
             $params = [
-
                 'newState'      => \CoreShop\Model\Order\State::STATE_PENDING_PAYMENT,
                 'newStatus'     => \CoreShop\Model\Order\State::STATUS_PENDING_PAYMENT,
-                'additional'    => [
-                    'sendOrderConfirmationMail' => FALSE,
-                    'sendOrderStatusMail'       => FALSE,
-                ]
-
             ];
-
             \CoreShop\Model\Order\State::changeOrderState($order, $params);
-
         } catch(\Exception $e) {
             \Pimcore\Logger::error('PayPal Gateway Error: Error on OrderChange: ' . $e->getMessage());
             $this->redirect($this->getModule()->getErrorUrl($e->getMessage()));
@@ -82,7 +73,6 @@ class Paypal_PaymentController extends Payment
             $pItem->setName($item->getProduct()->getName());
             $pItem->setCurrency(\CoreShop::getTools()->getCurrency()->getIsoCode());
             $pItem->setSku($item->getProduct()->getArticleNumber());
-
             $pItem->setPrice($item->getProductPrice(false));
             $pItem->setTax($item->getProductTaxAmount());
             $pItem->setQuantity($item->getAmount());
@@ -104,9 +94,6 @@ class Paypal_PaymentController extends Payment
         $transaction->setAmount($amount);
         $transaction->setItemList($itemList);
         $transaction->setInvoiceNumber($identifier);
-
-        $this->cart->setCustomIdentifier($identifier);
-        $this->cart->save();
 
         $redirectUrls = new \PayPal\Api\RedirectUrls();
         $redirectUrls->setReturnUrl(Pimcore\Tool::getHostUrl() . $this->getModule()->url($this->getModule()->getIdentifier(), 'payment-return'));
@@ -141,24 +128,51 @@ class Paypal_PaymentController extends Payment
         $execution->setPayerId($_GET['PayerID']);
 
         try {
-            $payment->execute($execution, $this->apiContext);
+
+            try {
+                $payment->execute($execution, $this->apiContext);
+            } catch(\Exception $e) {
+                $this->redirect($this->getModule()->getErrorUrl('Paypal execution error: ' . $e->getMessage()));
+            }
+
             $transactions = $payment->getTransactions();
 
             $orderId = str_replace('order_', '', $transactions[0]->getInvoicenumber());
+
             $order = \CoreShop\Model\Order::getById($orderId);
 
             if ($order instanceof \CoreShop\Model\Order) {
 
                 try {
+                    $state = \CoreShop\Model\Order\State::STATE_CANCELED;
+                    $status = \CoreShop\Model\Order\State::STATUS_CANCELED;
+                    $message = '-';
+
+                    switch($payment->getState()) {
+                        case 'created':
+                            $state = \CoreShop\Model\Order\State::STATE_PENDING_PAYMENT;
+                            $status = \CoreShop\Model\Order\State::STATE_PENDING_PAYMENT;
+                            break;
+                        case 'approved':
+                            $state = \CoreShop\Model\Order\State::STATE_PROCESSING;
+                            $status = \CoreShop\Model\Order\State::STATUS_PROCESSING;
+                            break;
+                        case 'failed':
+                            $state = \CoreShop\Model\Order\State::STATE_CANCELED;
+                            $status = \CoreShop\Model\Order\State::STATUS_CANCELED;
+                            $message = $payment->getFailureReason();
+                            break;
+                    }
+
+                    //get transaction
+                    $this->getOrderPayment(
+                        $order,
+                        $paymentId
+                    )->addTransactionNote($paymentId, 'State: ' . $payment->getState() . '. Message: ' . $message);
 
                     $params = [
-
-                        'newState'      => \CoreShop\Model\Order\State::STATE_PROCESSING,
-                        'newStatus'     => \CoreShop\Model\Order\State::STATUS_PROCESSING,
-                        'additional'    => [
-                            'sendOrderConfirmationMail' => TRUE
-                        ]
-
+                        'newState'      => $state,
+                        'newStatus'     => $status,
                     ];
 
                     try {
@@ -197,7 +211,7 @@ class Paypal_PaymentController extends Payment
 
     public function paymentReturnAbortAction()
     {
-        $this->redirect(\CoreShop::getTools()->url(array('lang' => $this->view->language), 'coreshop_index') );
+        $this->redirect($this->getModule()->getErrorUrl('Paypal payment has been canceled.' ));
     }
 
     public function confirmationAction()
