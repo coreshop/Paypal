@@ -26,7 +26,7 @@ class Plugin extends AbstractPlugin implements PluginInterface
     /**
      * @var int
      */
-    private static $requiredCoreShopBuild = 115;
+    private static $requiredCoreShopBuild = 116;
 
     /**
      * @var Shop
